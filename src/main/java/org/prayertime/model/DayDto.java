@@ -1,4 +1,4 @@
-package org.prayertimes.java.com.example.dtos;
+package org.prayertime.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;

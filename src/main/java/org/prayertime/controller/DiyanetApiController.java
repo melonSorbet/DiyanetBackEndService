@@ -1,8 +1,15 @@
-package example.api;
+package org.prayertime.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
+import org.prayertime.config.AppConfig;
+import org.prayertime.model.ApiAccess;
+import org.prayertime.model.Data;
+import org.prayertime.model.DayDto;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 
 
 import java.io.IOException;
@@ -11,16 +18,25 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Arrays;
 
-public class diyanetapi {
-    private static final String YOUR_EMAIL = "";
-    private static final String YOUR_PASSWORD = "";
+@Controller
+public class DiyanetApiController {
+
+    public final AppConfig config;
+
+    @Autowired
+    public DiyanetApiController(AppConfig config) {
+        this.config = config;
+    }
+    @PostConstruct
+    public void printemail(){
+        System.out.println("Password: " + config.getPassword());
+    }
 
     public String getAccessToken() throws IOException, InterruptedException, URISyntaxException {
         String data = "{\n" +
-                "\"email\": \"" + YOUR_EMAIL + "\",\n" +
-                "\"password\": \"" + YOUR_PASSWORD + "\"\n" +
+                "\"email\": \"" + config.getEmail() + "\",\n" +
+                "\"password\": \"" + config.getPassword() + "\"\n" +
                 "}";
         HttpRequest auth = HttpRequest.newBuilder().uri(new URI("https://awqatsalah.diyanet.gov.tr/Auth/Login")).
                 POST(HttpRequest.BodyPublishers.ofString(data)).header("Content-Type", "application/json").build();
@@ -31,7 +47,7 @@ public class diyanetapi {
         System.out.println(jsonResponse);
         var jsonToJava = new ObjectMapper();
 
-        org.prayertimes.java.com.example.dtos.Data<org.prayertimes.java.com.example.dtos.ApiAccess> stringData = jsonToJava.readValue(jsonResponse, new TypeReference<org.prayertimes.java.com.example.dtos.Data<org.prayertimes.java.com.example.dtos.ApiAccess>>() {});
+        Data<ApiAccess> stringData = jsonToJava.readValue(jsonResponse, new TypeReference<>() {});
 
         return stringData.getData().getAccessToken();
     }
@@ -48,26 +64,28 @@ public class diyanetapi {
             throw new RuntimeException(e);
         }
     }
-    public org.prayertimes.java.com.example.dtos.DayDto[] getNextMonth(String accessToken) throws JsonProcessingException {
+    public DayDto[] getNextMonth(String accessToken) throws JsonProcessingException {
         var jsonToJavaMapper = new ObjectMapper();
         String httpBody = getRequests("https://awqatsalah.diyanet.gov.tr/api/PrayerTime/Monthly/11002", accessToken);
 
-        org.prayertimes.java.com.example.dtos.Data<org.prayertimes.java.com.example.dtos.DayDto[]> data = jsonToJavaMapper.readValue(httpBody, new TypeReference<>() {});
+        Data<DayDto[]> data = jsonToJavaMapper.readValue(httpBody, new TypeReference<>() {});
         return data.getData();
     }
-    public org.prayertimes.java.com.example.dtos.DayDto getCurrentDay(String accessToken) throws JsonProcessingException {
+    public DayDto getCurrentDay(String accessToken) throws JsonProcessingException {
         var jsonToJavaMapper = new ObjectMapper();
         String httpBody = getRequests("https://awqatsalah.diyanet.gov.tr/api/PrayerTime/Daily/11002", accessToken);
 
-        org.prayertimes.java.com.example.dtos.Data<org.prayertimes.java.com.example.dtos.DayDto[]> data = jsonToJavaMapper.readValue(httpBody, new TypeReference<>() {});
+        Data<DayDto[]> data = jsonToJavaMapper.readValue(httpBody, new TypeReference<>() {});
         return data.getData()[0];
     }
 
 
     public static void main(String[] arg) throws IOException, URISyntaxException, InterruptedException {
-        diyanetapi diyanetApi = new diyanetapi();
-        String accessToken = diyanetApi.getAccessToken();
+        DiyanetApiController diyanetApi = new DiyanetApiController(new AppConfig());
+        /*String accessToken = diyanetApi.getAccessToken();
         String body = Arrays.toString(diyanetApi.getNextMonth(accessToken));
-        System.out.println(body);
+        System.out.println(body);*/
+
+        System.out.println(diyanetApi.config.getPassword());
     }
 }

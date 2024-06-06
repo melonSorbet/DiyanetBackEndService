@@ -13,7 +13,7 @@ public class AppConfig {
     @Value("${password}")
     private String password;
 
-    @Value("${database.path}")
+    @Value("${database.url}")
     private String databasePath;
 
     @Value("${database.password}")

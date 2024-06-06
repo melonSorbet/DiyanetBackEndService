@@ -5,12 +5,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import org.prayertime.config.AppConfig;
-import org.prayertime.model.ApiAccess;
-import org.prayertime.model.Data;
-import org.prayertime.model.DayDto;
+import org.prayertime.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-
 
 import java.io.IOException;
 import java.net.URI;
@@ -18,18 +15,19 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Arrays;
 
 @Controller
 public class DiyanetApiController {
-
     public final AppConfig config;
 
     @Autowired
     public DiyanetApiController(AppConfig config) {
         this.config = config;
     }
+
     @PostConstruct
-    public void printemail(){
+    public void printemail() {
         System.out.println("Password: " + config.getPassword());
     }
 
@@ -47,12 +45,13 @@ public class DiyanetApiController {
         System.out.println(jsonResponse);
         var jsonToJava = new ObjectMapper();
 
-        Data<ApiAccess> stringData = jsonToJava.readValue(jsonResponse, new TypeReference<>() {});
+        DataDto<ApiAccess> stringDataDto = jsonToJava.readValue(jsonResponse, new TypeReference<>() {
+        });
 
-        return stringData.getData().getAccessToken();
+        return stringDataDto.getData().getAccessToken();
     }
 
-    public String getRequests(String uri, String accessToken){
+    public String getRequests(String uri, String accessToken) {
         try {
             HttpRequest auth = HttpRequest.newBuilder().uri(new URI(uri)).GET().
                     header("Authorization", "Bearer " + accessToken).
@@ -64,28 +63,65 @@ public class DiyanetApiController {
             throw new RuntimeException(e);
         }
     }
+
     public DayDto[] getNextMonth(String accessToken) throws JsonProcessingException {
         var jsonToJavaMapper = new ObjectMapper();
         String httpBody = getRequests("https://awqatsalah.diyanet.gov.tr/api/PrayerTime/Monthly/11002", accessToken);
 
-        Data<DayDto[]> data = jsonToJavaMapper.readValue(httpBody, new TypeReference<>() {});
-        return data.getData();
+        DataDto<DayDto[]> dataDto = jsonToJavaMapper.readValue(httpBody, new TypeReference<>() {
+        });
+        return dataDto.getData();
     }
+
     public DayDto getCurrentDay(String accessToken) throws JsonProcessingException {
         var jsonToJavaMapper = new ObjectMapper();
         String httpBody = getRequests("https://awqatsalah.diyanet.gov.tr/api/PrayerTime/Daily/11002", accessToken);
 
-        Data<DayDto[]> data = jsonToJavaMapper.readValue(httpBody, new TypeReference<>() {});
-        return data.getData()[0];
+        DataDto<DayDto[]> dataDto = jsonToJavaMapper.readValue(httpBody, new TypeReference<>() {
+        });
+        return dataDto.getData()[0];
     }
 
+    public DailyContentDto getDailyContent(String accessToken) throws JsonProcessingException {
+        var jsonToJavaMapper = new ObjectMapper();
+        String httpBody = getRequests("https://awqatsalah.diyanet.gov.tr/api/DailyContent", accessToken);
+
+        DataDto<DailyContentDto> dataDto = jsonToJavaMapper.readValue(httpBody, new TypeReference<DataDto<DailyContentDto>>() {
+        });
+        return dataDto.getData();
+    }
+
+    public CountryDto[] getCountries(String accessToken) throws JsonProcessingException {
+        var jsonToJavaMapper = new ObjectMapper();
+        String httpBody = getRequests("https://awqatsalah.diyanet.gov.tr/api/Place/Countries", accessToken);
+
+        DataDto<CountryDto[]> dataDto = jsonToJavaMapper.readValue(httpBody, new TypeReference<DataDto<CountryDto[]>>() {
+        });
+        return dataDto.getData();
+    }
+
+    public CityDto[] getAllCitiesFromCountry(String accessToken, Integer CountryId) throws JsonProcessingException {
+        var jsonToJavaMapper = new ObjectMapper();
+        String httpBody = getRequests("https://awqatsalah.diyanet.gov.tr/api/Place/States/" + CountryId, accessToken);
+
+        DataDto<CityDto[]> dataDto = jsonToJavaMapper.readValue(httpBody, new TypeReference<DataDto<CityDto[]>>() {
+        });
+        return dataDto.getData();
+    }
+
+    public CountryDto[] getCities(String accessToken) throws JsonProcessingException {
+        var jsonToJavaMapper = new ObjectMapper();
+        String httpBody = getRequests("https://awqatsalah.diyanet.gov.tr/api/Place/Countries", accessToken);
+
+        DataDto<CountryDto[]> dataDto = jsonToJavaMapper.readValue(httpBody, new TypeReference<DataDto<CountryDto[]>>() {
+        });
+        return dataDto.getData();
+    }
 
     public static void main(String[] arg) throws IOException, URISyntaxException, InterruptedException {
         DiyanetApiController diyanetApi = new DiyanetApiController(new AppConfig());
-        /*String accessToken = diyanetApi.getAccessToken();
+        String accessToken = diyanetApi.getAccessToken();
         String body = Arrays.toString(diyanetApi.getNextMonth(accessToken));
-        System.out.println(body);*/
-
-        System.out.println(diyanetApi.config.getPassword());
+        System.out.println(Arrays.toString(diyanetApi.getAllCitiesFromCountry(accessToken, 13)));
     }
 }

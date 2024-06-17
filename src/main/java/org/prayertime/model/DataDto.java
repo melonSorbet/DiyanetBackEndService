@@ -2,11 +2,11 @@ package org.prayertime.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
+import lombok.Data;
 
-@Getter
+@Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Data<Dto>{
+public class DataDto<Dto> {
     private int code;
     private String status;
     @JsonProperty("data")
@@ -19,6 +19,7 @@ public class Data<Dto>{
     public String getStatus() {
         return status;
     }
+
     public Dto getData() {
         return data;
     }

@@ -73,6 +73,15 @@ public class DiyanetApiController {
         return dataDto.getData();
     }
 
+    public DayDto[] getNextWeek(String accessToken) throws JsonProcessingException {
+        var jsonToJavaMapper = new ObjectMapper();
+        String httpBody = getRequests("https://awqatsalah.diyanet.gov.tr/api/PrayerTime/Weekly/11002", accessToken);
+
+        DataDto<DayDto[]> dataDto = jsonToJavaMapper.readValue(httpBody, new TypeReference<>() {
+        });
+        return dataDto.getData();
+    }
+
     public DayDto getCurrentDay(String accessToken) throws JsonProcessingException {
         var jsonToJavaMapper = new ObjectMapper();
         String httpBody = getRequests("https://awqatsalah.diyanet.gov.tr/api/PrayerTime/Daily/11002", accessToken);

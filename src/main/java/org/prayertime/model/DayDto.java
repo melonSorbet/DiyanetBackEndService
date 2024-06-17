@@ -1,19 +1,20 @@
 package org.prayertime.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 
 @Data
+@AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DayDto {
-    private String gregorianDateShort;
-    private String fajr;
-    private String dhuhr;
-    private String asr;
-    private String maghrib;
-    private String isha;
-    private String sunrise;
+    private int gregorianDateShort;
+    private int fajr;
+    private int dhuhr;
+    private int asr;
+    private int maghrib;
+    private int isha;
+    private int sunrise;
 
     @Override
     public String toString() {
@@ -29,3 +30,4 @@ public class DayDto {
     }
 
 }
+

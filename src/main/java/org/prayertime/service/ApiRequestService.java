@@ -13,9 +13,9 @@ import java.util.List;
 @Service
 public class ApiRequestService {
     private AppConfig appConfig;
-    private DiyanetApiController diyanetApiController;
-    private DatabaseInsertHandler databaseInsertHandler;
-    private DatabaseSelectHandler databaseSelectHandler;
+    private final DiyanetApiController diyanetApiController;
+    private final DatabaseInsertHandler databaseInsertHandler;
+    private final DatabaseSelectHandler databaseSelectHandler;
     private String accessToken;
 
     ApiRequestService(AppConfig appConfig, DiyanetApiController diyanetApiController, DatabaseSelectHandler databaseSelectHandler, DatabaseInsertHandler databaseInsertHandler) {

@@ -1,7 +1,9 @@
 package org.prayertime.repository;
 
+import com.zaxxer.hikari.HikariConfig;
 import jakarta.annotation.PostConstruct;
 import org.prayertime.config.AppConfig;
+import org.prayertime.config.HikrariCpConfiguration;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
@@ -9,13 +11,15 @@ import java.sql.*;
 @Repository
 public class DatabaseInitializer {
     private final AppConfig appConfig;
+    HikariConfig hikariConfig;
 
-    public DatabaseInitializer(AppConfig appConfig) {
+    public DatabaseInitializer(AppConfig appConfig, HikrariCpConfiguration hikariConfig) {
         this.appConfig = appConfig;
+        this.hikariConfig = HikrariCpConfiguration.FactoryMethod();
     }
 
     @PostConstruct
-    private void initializeDatabase() throws ClassNotFoundException {
+    public void initializeDatabase() throws ClassNotFoundException {
         String dataBaseUrl = appConfig.getDatabasePath() + appConfig.getDatabaseName();
         createDatabase(dataBaseUrl);
         initializeCityTable(dataBaseUrl);
@@ -25,7 +29,8 @@ public class DatabaseInitializer {
     }
 
     private void initializeDaysTable(String dataBaseUrl) {
-        try (Connection conn = DriverManager.getConnection(dataBaseUrl); Statement stmt = conn.createStatement()) {
+
+        try (Connection conn = hikariConfig.getDataSource().getConnection(); Statement stmt = conn.createStatement()) {
             String sql = "CREATE TABLE IF NOT EXISTS Day (\n" +
                     "  dateId INTEGER PRIMARY KEY,\n" +
                     "  cityId INTEGER,\n" +

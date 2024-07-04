@@ -87,32 +87,4 @@ public class DatabaseInsertHandler {
         }
     }
 
-    public static void insertEid() {
-
-    }
-
-    public static void insertDailyContent() {
-
-    }
-
-    public static void insertCountries() {
-
-    }
-
-    public static void insertWeekly() {
-
-    }
-
-    public static void insertRamadan() {
-
-    }
-
-    public static void main(String[] args) {
-        ArrayList<DayDto> dayDtos = new ArrayList<>();
-        DayDto dayDto = new DayDto();
-        dayDto.setAsr("1450");
-        dayDto.setGregorianDateShort("12312312");
-        dayDtos.add(dayDto);
-        DatabaseInsertHandler.insertCity(10110, "Berlin", 12300);
-    }
 }

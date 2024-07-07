@@ -5,23 +5,26 @@ import org.prayertime.model.CityDto;
 import org.prayertime.model.CountryDto;
 import org.prayertime.model.DailyContentDto;
 import org.prayertime.model.DayDto;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.sql.*;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 @Repository
 public class DatabaseInsertHandler {
-    @Autowired
+    private final DataSource dataSource;
     private final AppConfig appConfig;
 
-    public DatabaseInsertHandler(AppConfig appConfig) {
+    public DatabaseInsertHandler(AppConfig appConfig, DataSource dataSource) {
+        this.dataSource = dataSource;
         this.appConfig = appConfig;
     }
 
-    public static void insertDays(DayDto[] dayDtos, int cityId) {
+    public void insertDays(DayDto[] dayDtos, int cityId) {
         String raw_sql = "INSERT INTO Day(dateid,cityid, fajr,dhuhr,asr,maghrib,isha,sunrise) VALUES(?,?,?,?,?,?,?,?)";
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:/home/user/Development/PrayerTimeProject/DiyanetBackEndService/src/main/java/org/prayertime/database/data");
+        try (Connection conn = dataSource.getConnection();
              PreparedStatement statement = conn.prepareStatement(raw_sql)) {
             for (DayDto dayDto : dayDtos) {
                 statement.setInt(1, dayDto.getGregorianDateShort());
@@ -31,7 +34,7 @@ public class DatabaseInsertHandler {
                 statement.setInt(5, dayDto.getAsr());
                 statement.setInt(6, dayDto.getMaghrib());
                 statement.setInt(7, dayDto.getIsha());
-                statement.setInt(7, dayDto.getSunrise());
+                statement.setInt(8, dayDto.getSunrise());
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
@@ -39,9 +42,9 @@ public class DatabaseInsertHandler {
         }
     }
 
-    public static void insertCity(CityDto[] cityDto, int countryId) {
+    public void insertCity(CityDto[] cityDto, int countryId) {
         String rawSql = "INSERT INTO City(cityId,CityName,countryId) VALUES(?,?,?)";
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:/home/user/Development/PrayerTimeProject/DiyanetBackEndService/src/main/java/org/prayertime/database/data");
+        try (Connection conn = dataSource.getConnection();
              PreparedStatement preparedStatement = conn.prepareStatement(rawSql)) {
             for (int i = 0; i < cityDto.length; i++) {
                 preparedStatement.setInt(1, cityDto[i].getId());
@@ -54,12 +57,12 @@ public class DatabaseInsertHandler {
         }
     }
 
-    public static void insertDailyContent(DailyContentDto dailyContentDto) {
+    public void insertDailyContent(DailyContentDto dailyContentDto) {
         String rawSql = "INSERT INTO DailyContent(dateId,verse,verseSource,hadith,hadithSource,pray) VALUES(?,?,?,?,?,?)";
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:/home/user/Development/PrayerTimeProject/DiyanetBackEndService/src/main/java/org/prayertime/database/data");
+        try (Connection conn = dataSource.getConnection();
              PreparedStatement preparedStatement = conn.prepareStatement(rawSql)) {
 
-            preparedStatement.setDate(1, new Date(12304));
+            preparedStatement.setInt(1, dailyContentDto.getDayOfYear());
             preparedStatement.setString(2, dailyContentDto.getVerse());
             preparedStatement.setString(3, dailyContentDto.getVerseSource());
             preparedStatement.setString(4, dailyContentDto.getHadith());
@@ -72,9 +75,9 @@ public class DatabaseInsertHandler {
         }
     }
 
-    public static void insertCountries(CountryDto[] countryDto) {
+    public void insertCountries(CountryDto[] countryDto) {
         String rawSql = "INSERT INTO Country(countryId, countryName) VALUES(?,?)";
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:/home/user/Development/PrayerTimeProject/DiyanetBackEndService/src/main/java/org/prayertime/database/data");
+        try (Connection conn = dataSource.getConnection();
              PreparedStatement preparedStatement = conn.prepareStatement(rawSql)) {
             for (int i = 0; i < countryDto.length; i++) {
                 preparedStatement.setInt(1, countryDto[i].getId());

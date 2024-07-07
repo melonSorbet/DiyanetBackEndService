@@ -14,7 +14,6 @@ import org.prayertime.service.TimeToIntDeserializer;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DayDto {
     @JsonDeserialize(using = DateToIntDeserializer.class)
-
     private int gregorianDateShort;
     @JsonDeserialize(using = TimeToIntDeserializer.class)
     private int fajr;

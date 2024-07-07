@@ -28,7 +28,7 @@ public class DiyanetApiController {
         this.httpClient = httpClient;
     }
 
-    private String getAccessToken() throws IOException, InterruptedException, URISyntaxException {
+    public String getAccessToken() throws IOException, InterruptedException, URISyntaxException {
         String data = "{\n" +
                 "\"email\": \"" + appConfig.getEmail() + "\",\n" +
                 "\"password\": \"" + appConfig.getPassword() + "\"\n" +

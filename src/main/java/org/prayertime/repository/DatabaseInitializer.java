@@ -1,36 +1,39 @@
 package org.prayertime.repository;
 
-import com.zaxxer.hikari.HikariConfig;
 import jakarta.annotation.PostConstruct;
+import lombok.Setter;
 import org.prayertime.config.AppConfig;
-import org.prayertime.config.HikrariCpConfiguration;
 import org.springframework.stereotype.Repository;
 
-import java.sql.*;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 @Repository
 public class DatabaseInitializer {
     private final AppConfig appConfig;
-    HikariConfig hikariConfig;
+    @Setter
+    DataSource dataSource;
 
-    public DatabaseInitializer(AppConfig appConfig, HikrariCpConfiguration hikariConfig) {
+    public DatabaseInitializer(AppConfig appConfig, DataSource dataSource) {
         this.appConfig = appConfig;
-        this.hikariConfig = HikrariCpConfiguration.FactoryMethod();
+        this.dataSource = dataSource;
     }
 
     @PostConstruct
     public void initializeDatabase() throws ClassNotFoundException {
-        String dataBaseUrl = appConfig.getDatabasePath() + appConfig.getDatabaseName();
-        createDatabase(dataBaseUrl);
-        initializeCityTable(dataBaseUrl);
-        initializeCountryTable(dataBaseUrl);
-        initializeDaysTable(dataBaseUrl);
-        initializeDayContentTable(dataBaseUrl);
+        createDatabase();
+        initializeCityTable();
+        initializeCountryTable();
+        initializeDaysTable();
+        initializeDayContentTable();
     }
 
-    private void initializeDaysTable(String dataBaseUrl) {
+    private void initializeDaysTable() {
 
-        try (Connection conn = hikariConfig.getDataSource().getConnection(); Statement stmt = conn.createStatement()) {
+        try (Connection conn = dataSource.getConnection(); Statement stmt = conn.createStatement()) {
             String sql = "CREATE TABLE IF NOT EXISTS Day (\n" +
                     "  dateId INTEGER PRIMARY KEY,\n" +
                     "  cityId INTEGER,\n" +
@@ -48,8 +51,8 @@ public class DatabaseInitializer {
         }
     }
 
-    private void initializeCountryTable(String dataBaseUrl) {
-        try (Connection conn = DriverManager.getConnection(dataBaseUrl); Statement stmt = conn.createStatement()) {
+    private void initializeCountryTable() {
+        try (Connection conn = dataSource.getConnection(); Statement stmt = conn.createStatement()) {
             String sql = "CREATE TABLE IF NOT EXISTS Country (\n" +
                     "  countryId INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
                     "  countryName VARCHAR(100)\n" +
@@ -60,8 +63,8 @@ public class DatabaseInitializer {
         }
     }
 
-    private void initializeCityTable(String dataBaseUrl) {
-        try (Connection conn = DriverManager.getConnection(dataBaseUrl); Statement stmt = conn.createStatement()) {
+    private void initializeCityTable() {
+        try (Connection conn = dataSource.getConnection(); Statement stmt = conn.createStatement()) {
             String sql = "CREATE TABLE IF NOT EXISTS City (\n" +
                     "  cityId INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
                     "  cityName VARCHAR(30),\n" +
@@ -75,8 +78,8 @@ public class DatabaseInitializer {
         }
     }
 
-    private void initializeDayContentTable(String dataBaseUrl) {
-        try (Connection conn = DriverManager.getConnection(dataBaseUrl); Statement stmt = conn.createStatement()) {
+    private void initializeDayContentTable() {
+        try (Connection conn = dataSource.getConnection(); Statement stmt = conn.createStatement()) {
             String sql = "CREATE TABLE IF NOT EXISTS DailyContent (\n" +
                     "  id INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
                     "  dateId INTEGER,\n" +
@@ -94,9 +97,9 @@ public class DatabaseInitializer {
         }
     }
 
-    private void createDatabase(String dataBaseUrl) throws ClassNotFoundException {
+    private void createDatabase() throws ClassNotFoundException {
         Class.forName("org.sqlite.JDBC");
-        try (Connection conn = DriverManager.getConnection(dataBaseUrl)) {
+        try (Connection conn = dataSource.getConnection()) {
             if (conn != null) {
                 DatabaseMetaData meta = conn.getMetaData();
                 System.out.println("The driver name is " + meta.getDriverName());

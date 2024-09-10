@@ -1,7 +1,6 @@
 package org.prayertime.repository;
 
 import org.junit.jupiter.api.Test;
-import org.prayertime.config.AppConfig;
 import org.prayertime.config.DataSourceConfig;
 
 import javax.sql.DataSource;
@@ -14,10 +13,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DatabaseInitializerTest {
-    private final AppConfig appConfig = AppConfig.appConfigFactoryMethod("jdbc:sqlite::memory:");
     DataSource dataSource = DataSourceConfig.createDataSource(30000, 10000, 250, 1, 1,
             "org.sqlite.JDBC", "", "", "jdbc:sqlite::memory:");
-    DatabaseInitializer databaseInitializer = new DatabaseInitializer(appConfig, dataSource);
+    DatabaseInitializer databaseInitializer = new DatabaseInitializer(dataSource);
 
     @Test
     void cityTableIsInitializedCorrectly() throws ClassNotFoundException, SQLException {

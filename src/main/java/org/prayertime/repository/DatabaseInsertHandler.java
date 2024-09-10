@@ -1,6 +1,5 @@
 package org.prayertime.repository;
 
-import org.prayertime.config.AppConfig;
 import org.prayertime.model.CityDto;
 import org.prayertime.model.CountryDto;
 import org.prayertime.model.DailyContentDto;
@@ -15,11 +14,9 @@ import java.sql.SQLException;
 @Repository
 public class DatabaseInsertHandler {
     private final DataSource dataSource;
-    private final AppConfig appConfig;
 
-    public DatabaseInsertHandler(AppConfig appConfig, DataSource dataSource) {
+    public DatabaseInsertHandler(DataSource dataSource) {
         this.dataSource = dataSource;
-        this.appConfig = appConfig;
     }
 
     public void insertDays(DayDto[] dayDtos, int cityId) {

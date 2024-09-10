@@ -1,56 +1,87 @@
 package org.prayertime.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.prayertime.config.AppConfig;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.prayertime.controller.DiyanetApiController;
+import org.prayertime.model.CityDto;
+import org.prayertime.model.CountryDto;
 import org.prayertime.model.DayDto;
 import org.prayertime.repository.DatabaseInsertHandler;
 import org.prayertime.repository.DatabaseSelectHandler;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
 public class ApiRequestService {
-    private AppConfig appConfig;
     private final DiyanetApiController diyanetApiController;
     private final DatabaseInsertHandler databaseInsertHandler;
     private final DatabaseSelectHandler databaseSelectHandler;
-    private String accessToken;
 
-    ApiRequestService(AppConfig appConfig, DiyanetApiController diyanetApiController, DatabaseSelectHandler databaseSelectHandler, DatabaseInsertHandler databaseInsertHandler) {
-        this.appConfig = appConfig;
+    ApiRequestService(DiyanetApiController diyanetApiController, DatabaseSelectHandler databaseSelectHandler, DatabaseInsertHandler databaseInsertHandler, ObjectMapper dateToIntMapper) {
         this.diyanetApiController = diyanetApiController;
         this.databaseInsertHandler = databaseInsertHandler;
         this.databaseSelectHandler = databaseSelectHandler;
     }
 
-    public DayDto[] getWeeklyPrayerTimes(int cityId, int firstDay, int lastDay) throws JsonProcessingException {
-        if (firstDay > lastDay) {
-            return null;
+    public DayDto[] getWeeklyPrayerTimes(int cityId) throws IOException, URISyntaxException, InterruptedException {
+        LocalDate date = java.time.LocalDate.now();
+        LocalDate dateEnd = date.plusDays(7);
+       
+        String accessToken = diyanetApiController.getAccessToken();
+        DayDto[] dayDtos = diyanetApiController.getNextWeek(accessToken);
+
+        return dayDtos;
+    }
+
+    public DayDto[] getMonthlyPrayerTimes(int cityId) throws IOException, URISyntaxException, InterruptedException {
+        LocalDate date = java.time.LocalDate.now();
+        LocalDate dateEnd = date.plusDays(30);
+
+        String accessToken = diyanetApiController.getAccessToken();
+        DayDto[] dayDtos = diyanetApiController.getNextMonth(accessToken);
+
+        return dayDtos;
+    }
+
+    public DayDto getDailyPrayerTime(int cityId) throws IOException, URISyntaxException, InterruptedException {
+        LocalDate date = java.time.LocalDate.now();
+        LocalDate dateEnd = date.plusDays(1);
+
+        String accessToken = diyanetApiController.getAccessToken();
+        return diyanetApiController.getCurrentDay(accessToken, cityId);
+    }
+
+    public CityDto[] getStates(int countryId) throws IOException, URISyntaxException, InterruptedException {
+
+        List<CityDto> cityDtos = databaseSelectHandler.selectCitiesFromCountry(countryId);
+
+        String accessToken = diyanetApiController.getAccessToken();
+        var cities = diyanetApiController.getAllStatesFromCountry(accessToken, countryId);
+        return cities;
+    }
+
+    public CityDto[] getCities(int statesId) throws IOException, URISyntaxException, InterruptedException {
+
+        List<CityDto> cityDtos = databaseSelectHandler.selectCitiesFromCountry(statesId);
+
+        if (!cityDtos.isEmpty()) {
+            return cityDtos.stream()
+                    .map(obj -> (CityDto) obj)
+                    .toArray(CityDto[]::new);
         }
-        List<DayDto> dayDto = databaseSelectHandler.selectDaysFromCityBetweenTimes(cityId, firstDay, lastDay);
-
-        if (!dayDto.isEmpty()) {
-            return dayDto.stream()
-                    .map(obj -> (DayDto) obj) // Casting each Object to DayDto
-                    .toArray(DayDto[]::new);
-        }
-        String accessToken = getAccessToken();
-        return diyanetApiController.getNextWeek(accessToken);
+        String accessToken = diyanetApiController.getAccessToken();
+        var cities = diyanetApiController.getAllCitiesFromState(accessToken, statesId);
+        return cities;
     }
 
-    public DayDto[] getMonthlyPrayerTimes() {
-        return null;
-    }
+    public CountryDto[] getCountries() throws IOException, URISyntaxException, InterruptedException {
 
-    public DayDto[] getPrayerTimeOnSpecificDay() {
-        return null;
+        String accessToken = diyanetApiController.getAccessToken();
 
-    }
-
-    public String getAccessToken() {
-        return "";
+        return diyanetApiController.getCountries(accessToken);
     }
 
 }

@@ -18,16 +18,9 @@ public class AppConfig {
     private String email;
     @Value("${password}")
     private String password;
-    @Value("${database.url}")
-    private String databasePath;
-    @Value("${database.password}")
-    private String databasePassword;
-    @Value("${database.name}")
-    private String databaseName;
 
-    public static AppConfig appConfigFactoryMethod(String databasePath) {
+    public static AppConfig appConfigFactoryMethod() {
         AppConfig appConfig = new AppConfig();
-        appConfig.setDatabasePath(databasePath);
         return appConfig;
     }
 

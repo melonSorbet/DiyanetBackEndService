@@ -23,7 +23,6 @@ public class DiyanetApiController {
 
     @Autowired
     public DiyanetApiController(AppConfig config, HttpClient httpClient) {
-
         this.appConfig = config;
         this.httpClient = httpClient;
     }
@@ -59,7 +58,7 @@ public class DiyanetApiController {
 
     public DayDto[] getNextMonth(String accessToken) throws JsonProcessingException {
         String httpBody = makeGetRequest("https://awqatsalah.diyanet.gov.tr/api/PrayerTime/Monthly/11002", accessToken);
-
+        System.out.println("Weekly Response: " + httpBody); // Log the response
         DataDto<DayDto[]> dataDto = new ObjectMapper().readValue(httpBody, new TypeReference<>() {
         });
         return dataDto.getData();
@@ -67,22 +66,22 @@ public class DiyanetApiController {
 
     public DayDto[] getNextWeek(String accessToken) throws JsonProcessingException {
         String httpBody = makeGetRequest("https://awqatsalah.diyanet.gov.tr/api/PrayerTime/Weekly/11002", accessToken);
-
+        System.out.println("Weekly Response: " + httpBody); // Log the response
         DataDto<DayDto[]> dataDto = new ObjectMapper().readValue(httpBody, new TypeReference<>() {
         });
         return dataDto.getData();
     }
 
-    public DayDto getCurrentDay(String accessToken) throws JsonProcessingException {
+    public DayDto getCurrentDay(String accessToken, int cityId) throws JsonProcessingException {
 
-        String httpBody = makeGetRequest("https://awqatsalah.diyanet.gov.tr/api/PrayerTime/Daily/11002", accessToken);
-
+        String httpBody = makeGetRequest("https://awqatsalah.diyanet.gov.tr/api/PrayerTime/Daily/" + cityId, accessToken);
+        //build in error code so we can see that quota is reached
         DataDto<DayDto[]> dataDto = new JsonMapper().readValue(httpBody, new TypeReference<>() {
         });
         return dataDto.getData()[0];
     }
 
-    public DailyContentDto getDailyContent(String accessToken) throws JsonProcessingException {
+    protected DailyContentDto getDailyContent(String accessToken) throws JsonProcessingException {
         String httpBody = makeGetRequest("https://awqatsalah.diyanet.gov.tr/api/DailyContent", accessToken);
 
         DataDto<DailyContentDto> dataDto = new ObjectMapper().readValue(httpBody, new TypeReference<DataDto<DailyContentDto>>() {
@@ -98,18 +97,18 @@ public class DiyanetApiController {
         return dataDto.getData();
     }
 
-    public CityDto[] getAllCitiesFromCountry(String accessToken, Integer CountryId) throws JsonProcessingException {
-        String httpBody = makeGetRequest("https://awqatsalah.diyanet.gov.tr/api/Place/States/" + CountryId, accessToken);
+    public CityDto[] getAllStatesFromCountry(String accessToken, Integer countryId) throws JsonProcessingException {
+        String httpBody = makeGetRequest("https://awqatsalah.diyanet.gov.tr/api/Place/States/" + countryId, accessToken);
 
         DataDto<CityDto[]> dataDto = new ObjectMapper().readValue(httpBody, new TypeReference<DataDto<CityDto[]>>() {
         });
         return dataDto.getData();
     }
 
-    public CountryDto[] getCities(String accessToken) throws JsonProcessingException {
-        String httpBody = makeGetRequest("https://awqatsalah.diyanet.gov.tr/api/Place/Countries", accessToken);
+    public CityDto[] getAllCitiesFromState(String accessToken, Integer stateId) throws JsonProcessingException {
+        String httpBody = makeGetRequest("https://awqatsalah.diyanet.gov.tr/api/Place/Cities/" + stateId, accessToken);
 
-        DataDto<CountryDto[]> dataDto = new ObjectMapper().readValue(httpBody, new TypeReference<DataDto<CountryDto[]>>() {
+        DataDto<CityDto[]> dataDto = new ObjectMapper().readValue(httpBody, new TypeReference<DataDto<CityDto[]>>() {
         });
         return dataDto.getData();
     }

@@ -2,7 +2,6 @@ package org.prayertime.repository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.prayertime.config.AppConfig;
 import org.prayertime.config.DataSourceConfig;
 import org.prayertime.model.CityDto;
 import org.prayertime.model.CountryDto;
@@ -18,16 +17,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class DatabaseSelectHandlerTest {
     DataSource dataSource = DataSourceConfig.createDataSource(30000, 10000, 250, 1, 1,
             "org.sqlite.JDBC", "", "", "jdbc:sqlite::memory:");
-    AppConfig appConfig = new AppConfig();
-    DatabaseInitializer databaseInitializer = new DatabaseInitializer(appConfig, dataSource);
-    DatabaseInsertHandler databaseInsertHandler = new DatabaseInsertHandler(appConfig, dataSource);
+    DatabaseInitializer databaseInitializer = new DatabaseInitializer(dataSource);
+    DatabaseInsertHandler databaseInsertHandler = new DatabaseInsertHandler(dataSource);
     DatabaseSelectHandler databaseSelectHandler = new DatabaseSelectHandler(dataSource);
 
     @BeforeEach
     public void startup() throws ClassNotFoundException {
         databaseInitializer.initializeDatabase();
     }
-    
+
     @Test
     void selectDaysFromCityBetweenTimes() {
         DayDto[] dayDtos = {

@@ -11,6 +11,10 @@ public class TimeToIntDeserializer extends JsonDeserializer<Integer> {
     @Override
     public Integer deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JacksonException {
         String string = jsonParser.getValueAsString();
+        return TimeToIntDeserializer.convertTimeStringToInt(string);
+    }
+
+    public static Integer convertTimeStringToInt(String string) {
         if (!string.contains(":")) {
             return null;
         }
@@ -20,4 +24,5 @@ public class TimeToIntDeserializer extends JsonDeserializer<Integer> {
         }
         return Integer.parseInt(strings[0] + strings[1]);
     }
+
 }

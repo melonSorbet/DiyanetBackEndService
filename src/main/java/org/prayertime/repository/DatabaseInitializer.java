@@ -2,7 +2,6 @@ package org.prayertime.repository;
 
 import jakarta.annotation.PostConstruct;
 import lombok.Setter;
-import org.prayertime.config.AppConfig;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -13,12 +12,10 @@ import java.sql.Statement;
 
 @Repository
 public class DatabaseInitializer {
-    private final AppConfig appConfig;
     @Setter
     DataSource dataSource;
 
-    public DatabaseInitializer(AppConfig appConfig, DataSource dataSource) {
-        this.appConfig = appConfig;
+    public DatabaseInitializer(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 

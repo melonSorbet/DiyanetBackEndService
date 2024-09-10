@@ -11,6 +11,10 @@ public class DateToIntDeserializer extends JsonDeserializer<Integer> {
     @Override
     public Integer deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JacksonException {
         String string = jsonParser.getValueAsString();
+        return DateToIntDeserializer.convertDateStringToInt(string);
+    }
+
+    public static Integer convertDateStringToInt(String string) {
         if (!string.contains(".")) {
             return null;
         }
@@ -18,7 +22,6 @@ public class DateToIntDeserializer extends JsonDeserializer<Integer> {
         if (string.length() < 3) {
             return null;
         }
-        
         return Integer.parseInt(strings[0] + strings[1] + strings[2]);
     }
 }

@@ -1,19 +1,33 @@
 package org.prayertime.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.prayertime.service.DateToIntDeserializer;
+import org.prayertime.service.TimeToIntDeserializer;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DayDto {
-    private String gregorianDateShort;
-    private String fajr;
-    private String dhuhr;
-    private String asr;
-    private String maghrib;
-    private String isha;
-    private String sunrise;
+    @JsonDeserialize(using = DateToIntDeserializer.class)
+    private int gregorianDateShort;
+    @JsonDeserialize(using = TimeToIntDeserializer.class)
+    private int fajr;
+    @JsonDeserialize(using = TimeToIntDeserializer.class)
+    private int dhuhr;
+    @JsonDeserialize(using = TimeToIntDeserializer.class)
+    private int asr;
+    @JsonDeserialize(using = TimeToIntDeserializer.class)
+    private int maghrib;
+    @JsonDeserialize(using = TimeToIntDeserializer.class)
+
+    private int isha;
+    @JsonDeserialize(using = TimeToIntDeserializer.class)
+    private int sunrise;
 
     @Override
     public String toString() {
@@ -29,3 +43,4 @@ public class DayDto {
     }
 
 }
+
